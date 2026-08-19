@@ -1,0 +1,14 @@
+# .NET
+bin/
+obj/
+
+# Node / React
+node_modules/
+build/
+
+# Autres
+*.user
+.vs/
+
+# Secrets — ne jamais commiter les credentials réels
+appsettings.Development.json
