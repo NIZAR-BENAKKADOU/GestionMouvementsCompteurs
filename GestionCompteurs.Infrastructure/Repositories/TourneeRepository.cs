@@ -15,10 +15,10 @@ public class TourneeRepository : ITourneeRepository
     }
 
     public async Task<List<Tournee>> GetAllAsync()
-        => await _context.Tournees.ToListAsync();
+        => await _context.Tournees.Include(t => t.Agence).ToListAsync();
 
     public async Task<Tournee?> GetByIdAsync(int id)
-        => await _context.Tournees.FindAsync(id);
+        => await _context.Tournees.Include(t => t.Agence).FirstOrDefaultAsync(t => t.Id == id);
 
     public async Task<Tournee> AddAsync(Tournee tournee)
     {
@@ -29,9 +29,8 @@ public class TourneeRepository : ITourneeRepository
 
     public async Task<bool> UpdateAsync(Tournee tournee)
     {
-        _context.Tournees.Update(tournee);
-        var result = await _context.SaveChangesAsync();
-        return result > 0;
+        await _context.SaveChangesAsync();
+        return true;
     }
 
     public async Task<bool> DeleteAsync(int id)

@@ -25,7 +25,7 @@ public class EtudeController : ControllerBase
     public async Task<ActionResult<EtudeDto>> GetById(int id)
     {
         var etude = await _service.GetByIdAsync(id);
-        if (etude is null) return NotFound();
+        if (etude is null) return NotFound("Étude introuvable.");
         return Ok(etude);
     }
 
@@ -41,6 +41,13 @@ public class EtudeController : ControllerBase
         {
             return BadRequest(ex.Message);
         }
+        catch (Exception ex)
+        {
+            var msg = ex.InnerException?.Message ?? ex.Message;
+            if (msg.Contains("UNIQUE") || msg.Contains("abonnement_id", StringComparison.OrdinalIgnoreCase))
+                return BadRequest("Un dossier d'étude est déjà rattaché à cet abonnement.");
+            return BadRequest(msg);
+        }
     }
 
     [HttpPut("{id}")]
@@ -49,20 +56,34 @@ public class EtudeController : ControllerBase
         try
         {
             var updated = await _service.UpdateAsync(id, dto);
-            if (!updated) return NotFound();
+            if (!updated) return NotFound("Étude introuvable.");
             return NoContent();
         }
         catch (ArgumentException ex)
         {
             return BadRequest(ex.Message);
         }
+        catch (Exception ex)
+        {
+            var msg = ex.InnerException?.Message ?? ex.Message;
+            if (msg.Contains("UNIQUE") || msg.Contains("abonnement_id", StringComparison.OrdinalIgnoreCase))
+                return BadRequest("Un dossier d'étude est déjà rattaché à cet abonnement.");
+            return BadRequest(msg);
+        }
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var deleted = await _service.DeleteAsync(id);
-        if (!deleted) return NotFound();
-        return NoContent();
+        try
+        {
+            var deleted = await _service.DeleteAsync(id);
+            if (!deleted) return NotFound("Étude introuvable.");
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.InnerException?.Message ?? ex.Message);
+        }
     }
 }

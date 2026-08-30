@@ -29,9 +29,8 @@ public class AgenceRepository : IAgenceRepository
 
     public async Task<bool> UpdateAsync(Agence agence)
     {
-        _context.Agences.Update(agence);
-        var result = await _context.SaveChangesAsync();
-        return result > 0;
+        await _context.SaveChangesAsync();
+        return true;
     }
 
     public async Task<bool> DeleteAsync(int id)

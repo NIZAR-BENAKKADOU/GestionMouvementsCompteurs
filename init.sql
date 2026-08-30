@@ -45,9 +45,13 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'TOURNEE')
 BEGIN
     CREATE TABLE TOURNEE (
-        id        INT IDENTITY(1,1) PRIMARY KEY,
-        nom       NVARCHAR(150) NOT NULL,
-        agence_id INT NOT NULL,
+        id             INT IDENTITY(1,1) PRIMARY KEY,
+        localisation   NVARCHAR(10)  NOT NULL,
+        categorie      NVARCHAR(10)  NOT NULL,
+        secteur        NVARCHAR(10)  NOT NULL,
+        numero_tournee NVARCHAR(10)  NOT NULL,
+        ordre          NVARCHAR(10)  NOT NULL,
+        agence_id      INT           NOT NULL,
         CONSTRAINT FK_Tournee_Agence FOREIGN KEY (agence_id) REFERENCES AGENCE(id)
     );
 END

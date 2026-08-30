@@ -1,8 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
-import api from '../services/api';
+import api, { getErrorMessage } from '../services/api';
 import { AuthContext } from '../contexts/AuthContext';
-import { Plus, Trash2, Pencil, ArrowLeft, Building2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+import { Plus, Trash2, Pencil, RefreshCw, X, Building2 } from 'lucide-react';
+import { validateAgenceNom, runValidators } from '../utils/validators';
+
+const FieldError = ({ msg }) => msg
+  ? <p className="mt-1 text-[11px] text-red-600 flex items-center gap-1"><span className="w-1 h-1 rounded-full bg-red-500 shrink-0 inline-block" />{msg}</p>
+  : null;
 
 const Agences = () => {
   const { isAdmin } = useContext(AuthContext);
@@ -14,109 +19,198 @@ const Agences = () => {
   const [showForm, setShowForm]     = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [formData, setFormData]     = useState(emptyForm);
+  const [formErrors, setFormErrors] = useState({});
 
   const fetchAll = async () => {
     setLoading(true);
-    try { const r = await api.get('/Agence'); setAgences(r.data); }
-    catch { setError('Erreur de chargement.'); }
-    finally { setLoading(false); }
+    setError('');
+    try { 
+      const r = await api.get('/Agence'); 
+      setAgences(r.data); 
+    } catch (err) { 
+      setError(getErrorMessage(err, 'Erreur lors du chargement des agences.')); 
+    } finally { 
+      setLoading(false); 
+    }
   };
 
   useEffect(() => { fetchAll(); }, []);
 
-  const openCreate = () => { setEditTarget(null); setFormData(emptyForm); setShowForm(true); };
-  const openEdit   = (a) => { setEditTarget(a.id); setFormData({ nom: a.nom }); setShowForm(true); };
-  const closeForm  = () => { setShowForm(false); setEditTarget(null); setFormData(emptyForm); };
+  const openCreate = () => { setEditTarget(null); setFormData(emptyForm); setFormErrors({}); setShowForm(true); };
+  const openEdit   = (a) => { setEditTarget(a.id); setFormData({ nom: a.nom }); setFormErrors({}); setShowForm(true); };
+  const closeForm  = () => { setShowForm(false); setEditTarget(null); setFormData(emptyForm); setFormErrors({}); };
+
+  const validate = () => runValidators({ nom: [formData.nom, validateAgenceNom] });
+  const handleChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (formErrors[field]) setFormErrors(prev => ({ ...prev, [field]: null }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const errors = validate();
+    if (Object.keys(errors).length > 0) { setFormErrors(errors); return; }
     try {
-      if (editTarget) { await api.put(`/Agence/${editTarget}`, { ...formData, id: editTarget }); }
-      else             { await api.post('/Agence', formData); }
-      closeForm(); fetchAll();
-    } catch (err) { alert(err.response?.data || 'Une erreur est survenue.'); }
+      if (editTarget) { 
+        await api.put(`/Agence/${editTarget}`, { ...formData, id: editTarget }); 
+      } else { 
+        await api.post('/Agence', formData); 
+      }
+      closeForm(); 
+      fetchAll();
+    } catch (err) { 
+      alert(getErrorMessage(err, 'Une erreur est survenue lors de l\'enregistrement.')); 
+    }
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm('Supprimer cette agence ?')) return;
-    try { await api.delete(`/Agence/${id}`); fetchAll(); }
-    catch { alert('Erreur lors de la suppression.'); }
+    try { 
+      await api.delete(`/Agence/${id}`); 
+      fetchAll(); 
+    } catch (err) { 
+      alert(getErrorMessage(err, 'Erreur lors de la suppression.')); 
+    }
   };
 
   return (
-    <div className="min-h-screen bg-dark-900 p-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-[#F6F8FA] flex flex-col">
+      <Navbar />
 
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center gap-4">
-            <Link to="/dashboard" className="p-2 bg-dark-800 text-slate-400 hover:text-white rounded-lg transition-colors">
-              <ArrowLeft size={20} />
-            </Link>
-            <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-              <Building2 className="text-cyan-500" /> Agences
-            </h1>
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 space-y-6">
+
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Agences Régionales</h1>
+            <p className="text-xs text-slate-500 mt-0.5 font-medium">Points de service SRM-FM de la région Fès - Meknès</p>
           </div>
-          {isAdmin && (
-            <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg font-medium transition-all shadow-lg shadow-cyan-500/20 active:scale-95">
-              <Plus size={18} /> Nouvelle Agence
+
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={fetchAll}
+              title="Actualiser"
+              className="p-2.5 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 transition-colors shadow-niche-sm"
+            >
+              <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
             </button>
-          )}
+            {isAdmin && (
+              <button onClick={openCreate} className="btn-primary">
+                <Plus size={15} />
+                <span>Nouvelle agence</span>
+              </button>
+            )}
+          </div>
         </div>
 
-        {error && <div className="p-4 bg-red-500/10 border border-red-500/50 text-red-400 rounded-lg mb-6">{error}</div>}
-
-        {showForm && (
-          <div className="glass-panel p-6 mb-6 border-cyan-500/30">
-            <h2 className="text-xl font-semibold text-white mb-4">{editTarget ? 'Modifier l\'agence' : 'Nouvelle Agence'}</h2>
-            <form onSubmit={handleSubmit} className="flex gap-4 items-end">
-              <div className="flex-1">
-                <label className="block text-sm font-medium text-slate-300 mb-1">Nom de l'agence</label>
-                <input required className="input-field" value={formData.nom} onChange={e => setFormData({ nom: e.target.value })} placeholder="Ex: Agence Fès Centre" />
-              </div>
-              <button type="submit" className="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg font-medium transition-all">
-                {editTarget ? 'Mettre à jour' : 'Enregistrer'}
-              </button>
-              <button type="button" onClick={closeForm} className="px-4 py-2 text-slate-400 border border-slate-600 hover:border-slate-400 rounded-lg transition-colors">
-                Annuler
-              </button>
-            </form>
+        {error && (
+          <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0"></span>
+            <span>{error}</span>
           </div>
         )}
 
-        {loading ? (
-          <div className="text-slate-400 text-center py-10">Chargement...</div>
-        ) : (
-          <div className="glass-panel overflow-hidden">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-dark-800/50 border-b border-slate-700/50 text-slate-300 text-sm">
-                  <th className="p-4 font-semibold">ID</th>
-                  <th className="p-4 font-semibold">Nom de l'agence</th>
-                  {isAdmin && <th className="p-4 font-semibold">Actions</th>}
-                </tr>
-              </thead>
-              <tbody>
-                {agences.length === 0 ? (
-                  <tr><td colSpan="3" className="p-4 text-center text-slate-500">Aucune agence trouvée.</td></tr>
-                ) : (
-                  agences.map(a => (
-                    <tr key={a.id} className="border-b border-slate-700/50 hover:bg-slate-800/20 transition-colors">
-                      <td className="p-4 text-slate-500 text-sm">{a.id}</td>
-                      <td className="p-4 text-white font-medium">{a.nom}</td>
+        {/* Table Card */}
+        <div className="bg-white border border-slate-200/90 rounded-2xl shadow-niche-card overflow-hidden">
+          {loading ? (
+            <div className="py-16 text-center text-xs text-slate-400">Chargement des agences...</div>
+          ) : agences.length === 0 ? (
+            <div className="py-16 text-center space-y-2">
+              <Building2 size={32} className="mx-auto text-slate-300" />
+              <div className="text-sm font-semibold text-slate-700">Aucune agence enregistrée</div>
+              <p className="text-xs text-slate-400">Créez votre première agence SRM-FM.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="table-header">
+                    <th className="p-3.5 pl-6">ID</th>
+                    <th className="p-3.5">Nom de l'Agence</th>
+                    {isAdmin && <th className="p-3.5 pr-6 text-right">Actions</th>}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {agences.map((a) => (
+                    <tr key={a.id} className="table-row">
+                      <td className="p-3.5 pl-6 font-mono text-slate-400">
+                        #{a.id}
+                      </td>
+                      <td className="p-3.5 font-bold text-slate-900 flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600">
+                          <Building2 size={14} />
+                        </div>
+                        <span>{a.nom}</span>
+                      </td>
                       {isAdmin && (
-                        <td className="p-4 flex gap-2">
-                          <button onClick={() => openEdit(a)} className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"><Pencil size={16} /></button>
-                          <button onClick={() => handleDelete(a.id)} className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"><Trash2 size={16} /></button>
+                        <td className="p-3.5 pr-6 text-right space-x-1 whitespace-nowrap">
+                          <button
+                            onClick={() => openEdit(a)}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                            title="Modifier"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(a.id)}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                            title="Supprimer"
+                          >
+                            <Trash2 size={14} />
+                          </button>
                         </td>
                       )}
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Modal Form */}
+        {showForm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+            <div className="w-full max-w-md bg-white border border-slate-200 rounded-3xl shadow-2xl p-6 space-y-5">
+              
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 className="text-base font-bold text-slate-900">
+                  {editTarget ? 'Modifier l\'agence' : 'Nouvelle agence'}
+                </h3>
+                <button onClick={closeForm} className="text-slate-400 hover:text-slate-600">
+                  <X size={18} />
+                </button>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-[11px] font-semibold uppercase text-slate-500 mb-1">Nom de l'agence * <span className="normal-case font-normal text-slate-400">(ex: Agence Fès Ville Nouvelle)</span></label>
+                  <input
+                    className={`input-field ${formErrors.nom ? 'border-red-400 bg-red-50' : ''}`}
+                    required
+                    placeholder="Agence ..."
+                    maxLength={150}
+                    value={formData.nom}
+                    onChange={e => handleChange('nom', e.target.value)}
+                  />
+                  <FieldError msg={formErrors.nom} />
+                </div>
+
+                <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+                  <button type="button" onClick={closeForm} className="btn-secondary">
+                    Annuler
+                  </button>
+                  <button type="submit" className="btn-primary">
+                    {editTarget ? 'Enregistrer' : 'Créer l\'agence'}
+                  </button>
+                </div>
+              </form>
+
+            </div>
           </div>
         )}
-      </div>
+
+      </main>
     </div>
   );
 };

@@ -37,5 +37,15 @@ public class TourneeConfiguration : IEntityTypeConfiguration<Tournee>
             .HasColumnName("ordre")
             .HasMaxLength(10)
             .IsRequired();
+
+        builder.Property(t => t.AgenceId)
+            .HasColumnName("agence_id")
+            .IsRequired();
+
+        // Relation Tournée → Agence (N,1)
+        builder.HasOne(t => t.Agence)
+            .WithMany()
+            .HasForeignKey(t => t.AgenceId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

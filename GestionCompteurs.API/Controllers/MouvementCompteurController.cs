@@ -25,34 +25,55 @@ public class MouvementCompteurController : ControllerBase
     public async Task<ActionResult<MouvementCompteurDto>> GetById(int id)
     {
         var mouvement = await _service.GetByIdAsync(id);
-        if (mouvement is null) return NotFound();
+        if (mouvement is null) return NotFound("Mouvement introuvable.");
         return Ok(mouvement);
     }
 
-    [HttpGet("abonnement/{abonnementId}")]
+    [HttpGet("by-abonnement/{abonnementId}")]
     public async Task<ActionResult<List<MouvementCompteurDto>>> GetByAbonnement(int abonnementId)
         => Ok(await _service.GetByAbonnementIdAsync(abonnementId));
 
     [HttpPost]
     public async Task<ActionResult<MouvementCompteurDto>> Create(MouvementCompteurDto dto)
     {
-        var created = await _service.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        try
+        {
+            var created = await _service.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.InnerException?.Message ?? ex.Message);
+        }
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, MouvementCompteurDto dto)
     {
-        var updated = await _service.UpdateAsync(id, dto);
-        if (!updated) return NotFound();
-        return NoContent();
+        try
+        {
+            var updated = await _service.UpdateAsync(id, dto);
+            if (!updated) return NotFound("Mouvement introuvable.");
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.InnerException?.Message ?? ex.Message);
+        }
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var deleted = await _service.DeleteAsync(id);
-        if (!deleted) return NotFound();
-        return NoContent();
+        try
+        {
+            var deleted = await _service.DeleteAsync(id);
+            if (!deleted) return NotFound("Mouvement introuvable.");
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.InnerException?.Message ?? ex.Message);
+        }
     }
 }

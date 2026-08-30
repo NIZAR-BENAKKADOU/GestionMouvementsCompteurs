@@ -85,9 +85,8 @@ public class AbonneRepository : IAbonneRepository
 
     public async Task<bool> UpdateAsync(Abonne abonne)
     {
-        _context.Abonnes.Update(abonne);
-        var result = await _context.SaveChangesAsync();
-        return result > 0;
+        await _context.SaveChangesAsync();
+        return true;
     }
 
     public async Task<bool> DeleteAsync(int id)

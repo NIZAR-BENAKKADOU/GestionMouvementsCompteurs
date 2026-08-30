@@ -33,7 +33,8 @@ public class TourneeService : ITourneeService
             Categorie = dto.Categorie,
             Secteur = dto.Secteur,
             NumeroTournee = dto.NumeroTournee,
-            Ordre = dto.Ordre
+            Ordre = dto.Ordre,
+            AgenceId = dto.AgenceId
         };
         var created = await _repository.AddAsync(tournee);
         return ToDto(created);
@@ -49,6 +50,7 @@ public class TourneeService : ITourneeService
         tournee.Secteur = dto.Secteur;
         tournee.NumeroTournee = dto.NumeroTournee;
         tournee.Ordre = dto.Ordre;
+        tournee.AgenceId = dto.AgenceId;
 
         return await _repository.UpdateAsync(tournee);
     }
@@ -63,6 +65,8 @@ public class TourneeService : ITourneeService
         Categorie = t.Categorie,
         Secteur = t.Secteur,
         NumeroTournee = t.NumeroTournee,
-        Ordre = t.Ordre
+        Ordre = t.Ordre,
+        AgenceId = t.AgenceId,
+        AgenceNom = t.Agence?.Nom
     };
 }

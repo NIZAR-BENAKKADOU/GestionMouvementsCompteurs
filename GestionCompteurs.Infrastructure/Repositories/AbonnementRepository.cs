@@ -37,9 +37,8 @@ public class AbonnementRepository : IAbonnementRepository
 
     public async Task<bool> UpdateAsync(Abonnement abonnement)
     {
-        _context.Abonnements.Update(abonnement);
-        var result = await _context.SaveChangesAsync();
-        return result > 0;
+        await _context.SaveChangesAsync();
+        return true;
     }
 
     public async Task<bool> DeleteAsync(int id)

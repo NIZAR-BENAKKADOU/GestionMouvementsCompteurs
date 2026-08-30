@@ -4,6 +4,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import Analytics from './pages/Analytics';
 import Abonnes from './pages/Abonnes';
 import Abonnements from './pages/Abonnements';
 import Etudes from './pages/Etudes';
@@ -19,6 +20,7 @@ function App() {
           <Route path="/login" element={<Login />} />
 
           <Route path="/dashboard"   element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/analytics"   element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
           <Route path="/abonnes"     element={<ProtectedRoute><Abonnes /></ProtectedRoute>} />
           <Route path="/abonnements" element={<ProtectedRoute><Abonnements /></ProtectedRoute>} />
           <Route path="/etudes"      element={<ProtectedRoute><Etudes /></ProtectedRoute>} />

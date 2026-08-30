@@ -8,4 +8,6 @@ public class TourneeDto
     public string Secteur { get; set; } = string.Empty;
     public string NumeroTournee { get; set; } = string.Empty;
     public string Ordre { get; set; } = string.Empty;
+    public int AgenceId { get; set; }
+    public string? AgenceNom { get; set; }
 }

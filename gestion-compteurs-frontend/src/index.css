@@ -4,20 +4,75 @@
 
 @layer base {
   body {
-    @apply bg-dark-900 text-slate-200 antialiased font-sans;
+    @apply bg-[#F6F8FA] text-slate-800 antialiased font-sans selection:bg-[#9E2422]/10 selection:text-[#9E2422];
+    letter-spacing: -0.012em;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(158, 36, 34, 0.03) 0px, transparent 40%),
+      radial-gradient(at 100% 100%, rgba(45, 106, 79, 0.03) 0px, transparent 40%);
+    background-attachment: fixed;
+  }
+
+  /* Refined Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94A3B8;
   }
 }
 
 @layer components {
-  .glass-panel {
-    @apply bg-dark-800/80 backdrop-blur-md border border-slate-700/50 shadow-xl rounded-xl;
-  }
-  
-  .btn-primary {
-    @apply px-4 py-2 bg-primary-600 hover:bg-primary-500 text-white rounded-lg font-medium transition-all duration-300 shadow-lg shadow-primary-500/20 active:scale-95;
+  /* SRM Niche Card */
+  .srm-card {
+    @apply bg-white border border-slate-200/80 shadow-niche-card rounded-2xl transition-all duration-200;
   }
 
+  /* Niche Primary Action (Deep Moroccan Terracotta Crimson - Logo Authentic) */
+  .btn-primary {
+    @apply px-4 py-2.5 bg-[#9E2422] hover:bg-[#861D1B] text-white text-xs font-semibold rounded-xl transition-all duration-200 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 shadow-crimson-btn tracking-wide;
+  }
+
+  /* Niche Secondary Button (Crisp White Porcelain) */
+  .btn-secondary {
+    @apply px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-200 text-xs font-medium rounded-xl transition-all duration-150 active:scale-[0.98] flex items-center justify-center gap-1.5 shadow-niche-sm;
+  }
+
+  /* Niche Zellige Green Button */
+  .btn-green {
+    @apply px-4 py-2.5 bg-[#2D6A4F] hover:bg-[#22543D] text-white text-xs font-semibold rounded-xl transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-1.5 shadow-sm;
+  }
+
+  /* Niche Input Field */
   .input-field {
-    @apply w-full px-4 py-2 bg-dark-900/50 border border-slate-700 rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all;
+    @apply w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#9E2422] focus:ring-2 focus:ring-[#9E2422]/10 transition-all text-xs shadow-niche-sm font-medium;
+  }
+
+  /* Luxury Table Utilities */
+  .table-header {
+    @apply bg-[#FAFBFD] border-b border-slate-200/80 text-slate-500 text-[11px] font-bold uppercase tracking-wider;
+  }
+
+  .table-row {
+    @apply border-b border-slate-100/90 hover:bg-[#F8FAFC] transition-colors duration-100;
+  }
+
+  .badge-crimson {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#FDF2F2] text-[#9E2422] border border-[#F6CECE];
+  }
+
+  .badge-emerald {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#F0F9F5] text-[#2D6A4F] border border-[#C6E7D9];
+  }
+
+  .badge-amber {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#FEF9EE] text-[#B8860B] border border-[#F9E4B7];
   }
 }

@@ -9,6 +9,10 @@ public class Tournee
     public string NumeroTournee { get; set; } = string.Empty;
     public string Ordre { get; set; } = string.Empty;
 
+    // FK vers Agence
+    public int AgenceId { get; set; }
+
     // Navigation
+    public Agence Agence { get; set; } = null!;
     public ICollection<Abonnement> Abonnements { get; set; } = new List<Abonnement>();
 }
