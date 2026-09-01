@@ -11,4 +11,18 @@ build/
 .vs/
 
 # Secrets — ne jamais commiter les credentials réels
-appsettings.Development.json
+appsettings.Development.json
+.env
+*.env
+
+# SQL scripts (données de seed et init)
+*.sql
+init-db.sh
+
+# Docker
+docker-compose.yml
+Dockerfile.*
+DOCKER_README.md
+
+# Fichiers CSV
+*.csv
